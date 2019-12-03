@@ -1172,6 +1172,7 @@ class S3SecretsScan(object):
             start += mlen
 
         return matches
+
 class S3BucketScan(object):
     def __init__(self, request_response, callbacks, opts):
         self.request_response = request_response
@@ -1244,7 +1245,8 @@ class S3BucketScan(object):
                 detail = 'Target allows unauthenticated read-write ' \
                     + 'access to AWS S3 bucket located at <b>' \
                     + s3host + '</b>. Region for this bucket is <b>' \
-                    + region \ + '</b>.'
+                    + region \
+                    + '</b>.'
 
                 issue = [ScanIssue(
                         self.request_response.getHttpService(),
@@ -1289,7 +1291,8 @@ class S3BucketScan(object):
                 detail = 'Target allows unauthenticated write-only ' \
                     + 'access to AWS S3 bucket located at <b>' \
                     + s3host + '</b>. Region for this bucket is <b>' \
-                    + region \ + '</b>.'
+                    + region \
+                    + '</b>.'
 
                 issue = [ScanIssue(
                         self.request_response.getHttpService(),
