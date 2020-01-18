@@ -630,6 +630,7 @@ class BucketScan(object):
                         issues.append('s3:PutBucketAcl')
 
             try:
+                orig_policy = self.boto3_client.get_bucket_policy(Bucket=bucket_name)
                 self.boto3_client.put_bucket_policy(
                     Bucket=bucket_name,
                     Policy='''
@@ -646,6 +647,10 @@ class BucketScan(object):
                         } ''' % bucket_name
                 )
                 issues.append('s3:PutBucketPolicy')
+                self.boto3_client.put_bucket_policy(
+                    Bucket=bucket_name,
+                    Policy=orig_policy.Policy
+                )
             except ClientError as error:
                 error_code = error.response['Error']['Code']
                 print('Error Code (put_bucket_policy): ' + str(error_code))
