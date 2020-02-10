@@ -2,20 +2,7 @@
 
 AWS Extender Extended is a [BurpSuite](https://portswigger.net/burp/) extension combining the functionality of (read: cribbing from) [AWS Extender](https://github.com/VirtueSecurity/aws-extender) and [AWS Security Checks](https://github.com/PortSwigger/aws-security-checks).
 
-## Checks (partial list from AWS Security Checks)
-
-| Active |
-| ------ |
-| S3 buckets in use |
-| S3 buckets unauthenticated read |
-| S3 buckets unauthenticated write |
-| S3 buckets authenticated read |
-| S3 buckets authenticated write |
-| AWS secrets accessible via metadata |
-
-| Passive |
-| ------- |
-| AWS secrets returned in response |
+Refer to the list of checks in the wiki.
 
 ## Getting Started
 ##### For general instructions on how to load BurpSuite extensions, please visit this [URL](https://support.portswigger.net/customer/portal/articles/1965930-how-to-install-an-extension-in-burp-suite).
