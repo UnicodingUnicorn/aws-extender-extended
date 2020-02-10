@@ -1,8 +1,8 @@
 # AWS Extender Extended
 
-AWS Extender Extended is a [BurpSuite](https://portswigger.net/burp/) extension combining the functionality of [AWS Extender](https://github.com/VirtueSecurity/aws-extender) and [AWS Security Checks](https://github.com/PortSwigger/aws-security-checks).
+AWS Extender Extended is a [BurpSuite](https://portswigger.net/burp/) extension combining the functionality of (read: cribbing from) [AWS Extender](https://github.com/VirtueSecurity/aws-extender) and [AWS Security Checks](https://github.com/PortSwigger/aws-security-checks).
 
-## Checks (partial list)
+## Checks (partial list from AWS Security Checks)
 
 | Active |
 | ------ |
@@ -42,6 +42,8 @@ The settings tab provides the following settings:
 | GS Secret Key     | Your Google account secret key    | True          |
 | Wordlist Filepath | A filepath to a list of filenames | False         |
 | Passive Mode      | Perform passive checks only       | N/A           |
+
+* Passive Mode has not been implemented yet.
 
 **Notes:**
 * AWS keys can be obtained from your [AWS Management Console](https://console.aws.amazon.com/iam/home?#/security_credential). For Google Cloud, see [the documentation](https://cloud.google.com/storage/docs/migrating#keys).
