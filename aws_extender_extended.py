@@ -48,7 +48,7 @@ IDENTIFIED_VALUES = set()
 
 class BurpExtender(IBurpExtender, IScannerCheck, ITab):
     def __init__(self):
-        self.ext_name = 'AWS Extender'
+        self.ext_name = 'AWS Extender Extended'
         self.callbacks = None
         self.gui_elements = None
         self.aws_access_key_inpt = None
@@ -425,13 +425,13 @@ class BucketScan(object):
                 issues.append('s3:GetLifecycleConfiguration')
 
             try:
-                self.boto3_client.get_bucket_notification(Bucket=bucket_name)
-                issues.append('s3:GetBucketNotification')
+                self.boto3_client.get_bucket_notification_configuration(Bucket=bucket_name)
+                issues.append('s3:GetBucketNotificationConfiguration')
             except ClientError as error:
                 error_code = error.response['Error']['Code']
-                print('Error Code (get_bucket_notification): ' + str(error_code))
+                print('Error Code (get_bucket_notification_configuration): ' + str(error_code))
             except ResponseParserError:
-                issues.append('s3:GetBucketNotification')
+                issues.append('s3:GetBucketNotificationConfiguration')
 
             try:
                 self.boto3_client.get_bucket_policy(Bucket=bucket_name)
@@ -537,7 +537,7 @@ class BucketScan(object):
                 issues.append('s3:PutBucketLogging')
 
             try:
-                self.boto3_client.put_bucket_notification(
+                self.boto3_client.put_bucket_notification_configuration(
                     Bucket=bucket_name,
                     NotificationConfiguration={
                         'TopicConfiguration': {
@@ -546,12 +546,12 @@ class BucketScan(object):
                         }
                     }
                 )
-                issues.append('s3:PutBucketNotification')
+                issues.append('s3:PutBucketNotificationConfiguration')
             except ClientError as error:
                 error_code = error.response['Error']['Code']
-                print('Error Code (put_bucket_notification): ' + str(error_code))
+                print('Error Code (put_bucket_notification_configuration): ' + str(error_code))
             except ResponseParserError:
-                issues.append('s3:PutBucketNotification')
+                issues.append('s3:PutBucketNotificationConfiguration')
 
             try:
                 self.boto3_client.put_bucket_tagging(
