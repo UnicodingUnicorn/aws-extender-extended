@@ -722,9 +722,10 @@ class BucketScan(object):
         issue_detail = '''The "%s" %s bucket grants the following permissions:<br>
                          <li>%s</li><br><br>''' % (bucket_name, bucket_type,
                                                    '</li><li>'.join(issues))
+        issue_confidence = 'Certain'
 
         return {'issue_name': issue_name, 'issue_detail': issue_detail,
-                'issue_level': issue_level}
+                'issue_level': issue_level, 'issue_confidence': issue_confidence}
 
     def check_timestamp(self, bucket_url, bucket_type, timestamp):
         """Check timestamps of signed URLs."""
@@ -762,9 +763,10 @@ class BucketScan(object):
             issue_level = 'Information'
             issue_detail = '''The following %s signed URL was found to be valid for more than
                 24 hours (expires in %sh):<br><li>%s</li>''' % (bucket_type, diff, bucket_url)
+            issue_confidence = 'Certain'
             self.scan_issues.append(
                 ScanIssue(self.request_response.getHttpService(),
-                          self.current_url, markers, issue_name, issue_level, issue_detail)
+                          self.current_url, markers, issue_name, issue_level, issue_confidence, issue_detail)
             )
 
     def test_object(self, bucket_name, bucket_type, key, mark=True):
@@ -857,9 +859,10 @@ class BucketScan(object):
         issue_detail = '''The following ACL grants were found set on the "%s" object of
             the "%s" %s bucket:<br><li>%s</li>''' % (norm_key, bucket_name, bucket_type,
                                                      '</li><li>'.join(issues))
+        issue_confidence = 'Certain'
         self.scan_issues.append(
             ScanIssue(self.request_response.getHttpService(),
-                      self.current_url, markers, issue_name, issue_level, issue_detail)
+                      self.current_url, markers, issue_name, issue_level, issue_confidence, issue_detail)
         )
 
     def check_buckets(self):
@@ -942,7 +945,7 @@ class BucketScan(object):
                         self.scan_issues.append(
                             ScanIssue(self.request_response.getHttpService(),
                                       self.helpers.analyzeRequest(self.request_response).getUrl(),
-                                      markers, issues['issue_name'], issues['issue_level'], issues['issue_detail']
+                                      markers, issues['issue_name'], issues['issue_level'], issues['issue_confidence'], issues['issue_detail']
                                      )
                         )
                 if not issues:
@@ -950,9 +953,10 @@ class BucketScan(object):
                     issue_level = 'Information'
                     issue_detail = '''The following %s bucket has been identified:<br>
                         <li>%s</li>''' % (bucket_type, bucket_name)
+                    issue_confidence = 'Certain'
                     self.scan_issues.append(
                         ScanIssue(self.request_response.getHttpService(),
-                                  self.current_url, markers, issue_name, issue_level, issue_detail)
+                                  self.current_url, markers, issue_name, issue_level, issue_confidence, issue_detail)
                     )
         if s3_bucket_matches:
             assess_buckets(s3_bucket_matches, 'S3')
@@ -988,9 +992,10 @@ class CognitoScan(object):
             <br><ul><li>%s</li></ul><br>The following identity ID has been obtained:
             <ul><li>%s</li></ul><br>The following token has been obtained:
             <ul><li>%s</li></ul>''' % (identity_pool_id, identity_id, token)
+        issue_confidence = 'Certain'
         self.scan_issues.append(
             ScanIssue(self.request_response.getHttpService(),
-                      self.current_url, markers, issue_name, issue_level, issue_detail)
+                      self.current_url, markers, issue_name, issue_level, issue_confidence, issue_detail)
         )
 
     def identify_identity_pools(self):
@@ -1049,9 +1054,10 @@ class CognitoScan(object):
                 issue_level = 'Information'
                 issue_detail = '''The following identity pool ID has been identified:<br>
                     <li>%s</li>''' % identity_pool_id
+                issue_confidence = 'Certain'
                 self.scan_issues.append(
                     ScanIssue(self.request_response.getHttpService(),
-                              self.current_url, markers, issue_name, issue_level, issue_detail)
+                              self.current_url, markers, issue_name, issue_level, issue_confidence, issue_detail)
                 )
                 IDENTIFIED_VALUES.add(identity_pool_tuple)
                 if identity_id and RUN_TESTS:
@@ -1086,6 +1092,9 @@ class S3SecretsScan(object):
             )
 
         if (len(matches) > 0):
+            issue_severity = 'High'
+            issue_confidence = 'Certain'
+
             return [ScanIssue(
                     self.request_response.getHttpService(),
                     host,
@@ -1093,8 +1102,9 @@ class S3SecretsScan(object):
                         self.request_response, None, matches
                     )],
                     name,
-                    detail,
-                    'High'
+                    issue_severity,
+                    issue_confidence,
+                    detail
                 )
             ]
         return []
@@ -1154,6 +1164,8 @@ class S3SecretsScan(object):
                 if (len(matches) > 0):
                     detail = 'Target allows to access its instance ' \
                         + 'meta-data containing AWS secrets.'
+                    issue_severity = 'High'
+                    issue_confidence = 'Certain'
 
                     return [ScanIssue(
                             self.request_response.getHttpService(),
@@ -1162,8 +1174,9 @@ class S3SecretsScan(object):
                                 checkRequestResponse, None, matches
                             )],
                             name,
-                            detail,
-                            'High'
+                            issue_severity,
+                            issue_confidence,
+                            detail
                         )
                     ]
         return []
@@ -1241,14 +1254,17 @@ class S3BucketScan(object):
                 + 'Manual verification is required to determine if ' \
                 + 'anyone can also store data in this bucket. Region ' \
                 + 'for this bucket is <b>' + region + '</b>.'
+            issue_severity = 'Medium'
+            issue_confidence = 'Certain'
 
             issue = [ScanIssue(
                     self.request_response.getHttpService(),
                     URL('http://' + host + ':80'),
                     [checkRequestResponse],
                     name,
-                    detail,
-                    'Medium'
+                    issue_severity,
+                    issue_confidence,
+                    detail
             )]
 
             if self.chkUnauthBucketWrite(httpService):
@@ -1257,6 +1273,8 @@ class S3BucketScan(object):
                     + s3host + '</b>. Region for this bucket is <b>' \
                     + region \
                     + '</b>.'
+                issue_severity = 'High'
+                issue_confidence = 'Certain'
 
                 issue = [ScanIssue(
                         self.request_response.getHttpService(),
@@ -1264,22 +1282,26 @@ class S3BucketScan(object):
                         [self.writeRequestResponse,
                             self.getRequestResponse],
                         name,
-                        detail,
-                        'High'
+                        issue_severity,
+                        issue_confidence,
+                        detail
                 )]
             elif self.chkAuthBucketWrite(httpService, region):
                 detail = 'Target allows authenticated read-write access' \
                     + 'to AWS S3 bucket located at <b>' + s3host \
                     + '</b>. Region for this bucket is <b>' + region \
                     + '</b>.'
+                issue_severity = 'High'
+                issue_confidence = 'Certain'
 
                 issue = [ScanIssue(
                         self.request_response.getHttpService(),
                         URL('http://' + host + ':80'),
                         [self.request_response],
                         name,
-                        detail,
-                        'High'
+                        issue_severity,
+                        issue_confidence,
+                        detail
                 )]
         elif code == 403:
             detail = 'Target uses AWS S3 bucket located at <b>' \
@@ -1287,14 +1309,17 @@ class S3BucketScan(object):
                 + 'order to read or write data to this bucket one ' \
                 + 'needs to know its AWS_ACCESS_KEY_ID and ' \
                 + 'AWS_SECRET_ACCESS_KEY.'
+            issue_severity = 'Information'
+            issue_confidence = 'Certain'
 
             issue = [ScanIssue(
                     self.request_response.getHttpService(),
                     URL('http://' + host + ':80'),
                     [checkRequestResponse],
                     name,
-                    detail,
-                    'Information'
+                    issue_severity,
+                    issue_confidence,
+                    detail
             )]
 
             if self.chkUnauthBucketWrite(httpService):
@@ -1303,6 +1328,8 @@ class S3BucketScan(object):
                     + s3host + '</b>. Region for this bucket is <b>' \
                     + region \
                     + '</b>.'
+                issue_severity = 'High'
+                issue_confidence = 'Certain'
 
                 issue = [ScanIssue(
                         self.request_response.getHttpService(),
@@ -1310,22 +1337,26 @@ class S3BucketScan(object):
                         [self.writeRequestResponse,
                             self.getRequestResponse],
                         name,
-                        detail,
-                        'High'
+                        issue_severity,
+                        issue_confidence,
+                        detail
                 )]
             elif self.chkAuthBucketWrite(httpService, region):
                 detail = 'Target allows authenticated write-only access' \
                     + 'to AWS S3 bucket located at <b>' + s3host \
                     + '</b>. Region for this bucket is <b>' + region \
                     + '</b>.'
+                issue_severity = 'High'
+                issue_confidence = 'Certain'
 
                 issue = [ScanIssue(
                         self.request_response.getHttpService(),
                         URL('http://' + host + ':80'),
                         [self.request_response],
                         name,
-                        detail,
-                        'High'
+                        issue_severity,
+                        issue_confidence,
+                        detail
                 )]
 
         return issue
@@ -1410,12 +1441,13 @@ class S3BucketScan(object):
         return False
 
 class ScanIssue(IScanIssue):
-    def __init__(self, http_service, url, request_response, name, severity, detail_msg):
+    def __init__(self, http_service, url, request_response, name, severity, confidence, detail_msg):
         self.url_ = url
         self.http_service = http_service
         self.request_response = request_response
         self.name_ = name
         self.severity_ = severity
+        self.confidence_ = confidence
         self.detail_msg = detail_msg
 
     def getUrl(self):
@@ -1454,4 +1486,4 @@ class ScanIssue(IScanIssue):
 
     @staticmethod
     def getConfidence():
-        return 'Certain'
+        return self.confidence_
